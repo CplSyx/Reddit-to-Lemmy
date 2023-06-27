@@ -21,7 +21,7 @@ Run `main.py`. (Note: sometimes JSON parse errors are encountered, I am unsure w
 
 `catboxUserhash (string)` Create an account on Catbox and your profile page will show your user hash.
 
-`clientID (string)` Create an app within Reddit here: https://www.reddit.com/prefs/apps and find your client ID under the name of the app
+`clientID (string)` Create an app within Reddit here: https://www.reddit.com/prefs/apps. Select "Script for personal use" . Find your client ID under the name of the app.
 
 `clientSecret (string)` Similar to the client ID, this is for the client secret.
 
