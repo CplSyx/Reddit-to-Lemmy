@@ -22,6 +22,9 @@ userAgent = ""
 # SubReddit to capture
 subreddit = ""
 
+# Number of posts to capture
+postCaptureCount = 10
+
 # Capture "New" posts? If False, will default to "Top" posts instead.
 newContent = False
 
@@ -51,7 +54,6 @@ import lemmypost as lp
 # Start by getting the subreddit post data. This may take a while depending on the number of posts requested.
 # postCaptureCount only works if newContent = False and can be used for debugging or partial loads. Max value is 1000 due to API limit.
 print("Connecting to Reddit")
-postCaptureCount = 500
 posts = rc.captureSubreddit(clientID, clientSecret, userAgent, subreddit, postCaptureCount, newContent)
 print(f"Obtained {len(posts)} posts from {subreddit}")
 
