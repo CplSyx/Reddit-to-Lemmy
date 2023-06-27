@@ -1,4 +1,4 @@
-# LemmyMigration
+# Reddit to Lemmy
 
 Export a Reddit subreddit to a Lemmy community
 
