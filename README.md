@@ -31,7 +31,7 @@ Run `main.py`. (Note: sometimes JSON parse errors are encountered, I am unsure w
 
 `newContent (boolean)` EXPERIMENTAL, results not guaranteed: Obtain new posts rather than top posts if `True`.
 
-'postCaptureCount (integer)' Number of posts to capture. Numbers over 1000 are capped due to the Reddit API but I recommend running in smaller batches in case of JSON parse issues.
+`postCaptureCount (integer)` Number of posts to capture. Numbers over 1000 are capped due to the Reddit API but I recommend running in smaller batches in case of JSON parse issues.
 
 `lemmyServer (string)` Lemmy instance to migrate to.
 
