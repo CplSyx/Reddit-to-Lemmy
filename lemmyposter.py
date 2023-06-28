@@ -26,9 +26,9 @@ def login(server, username, pw):
 ## Returns community id
 ## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#getCommunity
 
-def getCommunityID(server, communityName):
+def getCommunityID(authToken, server, communityName):
         try:
-            request = requests.get(f"{server}/api/v3/community?name={communityName}")
+            request = requests.get(f"{server}/api/v3/community?auth={authToken}&name={communityName}")
             communityId = request.json()["community_view"]["community"]["id"]
             return communityId   
             
@@ -44,7 +44,7 @@ def getCommunityID(server, communityName):
 def setPost(authToken, server, community, postName, postURL = None, postBody = None, nsfw = False):
     postContent = {
         "auth": authToken,
-        "community_id": getCommunityID(server, community),
+        "community_id": getCommunityID(authToken, server, community),
         "name": postName,
         "language_id" : 37, # I think that's English going by the json received from other posts
         "nsfw" : nsfw
@@ -72,7 +72,7 @@ def setComment(authToken, server, content, postId, parentID = None):
     commentContent = {
         "auth" : authToken,
         "content" : content,
-        "post_id" : postId,
+        "post_id" : postId
     }
     
     if parentID:
@@ -81,22 +81,23 @@ def setComment(authToken, server, content, postId, parentID = None):
     request = requests.post(f"{server}/api/v3/comment", json = commentContent)
     
     if not request.ok:
-        print(f"Error encountered while commenting: {request.text}")
+        print(f"Error encountered while commenting: {content}\r\n\r\nResponse: {request.text}")
         
     return request.json()["comment_view"]["comment"]["id"]    
 
 
 ## Distinguish a comment 
-## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#editComment
+## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#distinguishComment
 
 def distinguishComment(authToken, server, commentID):
-    commentContent = {
+
+    distinguishPayload = {
         "auth" : authToken,
         "comment_id" : commentID,
         "distinguished" : True
     }
-    
-    request = requests.put(f"{server}/api/v3/comment", json = commentContent)
+
+    request = requests.post(f"{server}/api/v3/comment/distinguish", json = distinguishPayload)
     
     if not request.ok:
         print(f"Error encountered while distinguishing comment: {request.text}")
@@ -126,9 +127,9 @@ def getPosts(authToken, server, communityName):
 ## Get comments for a specific post
 ## Returns list of comments
 ## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#getComments
-def getComments(server, postID):
+def getComments(authToken, server, postID):
         try:
-            request = requests.get(f"{server}/api/v3/comment/list?post_id={postID}")
+            request = requests.get(f"{server}/api/v3/comment/list?auth={authToken}&post_id={postID}")
             posts = request.json()
             return posts   
             
@@ -139,9 +140,9 @@ def getComments(server, postID):
 ## Get the "credit" comment for a specific post (if there is one)
 ## Returns a single comment
 ## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#getComments
-def getCreditComment(server, postID):
+def getCreditComment(authToken, server, postID):
         try:
-            request = requests.get(f"{server}/api/v3/comment/list?post_id={postID}&sort=Old")
+            request = requests.get(f"{server}/api/v3/comment/list?auth={authToken}&post_id={postID}&sort=Old")
             posts = request.json()
             
             #Our credit comments are distinguished so we can use this to check
