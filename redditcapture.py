@@ -64,7 +64,7 @@ def getPostInformation(postDataFromJSON):
     postPermalink = postDataFromJSON["data"]["children"][0]["data"]["permalink"]       
     postDate = datetime.datetime.fromtimestamp(postDataFromJSON["data"]["children"][0]["data"]["created"])    
     
-    postInformation["creditComment"] = f'**\"{postInformation["title"]}\"**\r\n\r\nOriginally posted by u/{postAuthor} on {postDate} ([{postInformation["id"]}](https://www.reddit.com{postPermalink})).'
+    postInformation["creditComment"] = f'#### {postInformation["title"]}\r\n\r\n`Originally posted by u/{postAuthor} on {postDate}` ([{postInformation["id"]}](https://www.reddit.com{postPermalink})).'
         
     return postInformation
         
@@ -84,20 +84,29 @@ def extractAllComments(commentList, postData):
 
     for comment in postData["data"]["children"]:        
 
-        commentData = {}
-        commentData["commentID"] = comment["data"]["id"]
-        commentData["commentParentID"] = comment["data"]["parent_id"]
-        commentData["commentBody"] = comment["data"]["body"]
-        commentData["commentCreated"] = comment["data"]["created"]
-        commentData["commentPermalink"] = comment["data"]["permalink"]
-        commentData["commentAuthor"] = comment["data"]["author"]
+        try:
+            commentData = {}
+            commentData["commentID"] = comment["data"]["id"]
+            commentData["commentParentID"] = comment["data"]["parent_id"]
+            commentData["commentBody"] = comment["data"]["body"]
+            commentData["commentCreated"] = comment["data"]["created"]
+            commentData["commentPermalink"] = comment["data"]["permalink"]
+            commentData["commentAuthor"] = comment["data"]["author"]
+            
+            commentList.append(commentData)
+            
+            if (len(comment["data"]["replies"]) > 0):
+                extractAllComments(commentList, comment["data"]["replies"])
+                
+            return commentList
+            
+        except Exception as e:
+            # Sometimes we hit JSON errors - unclear why as it is intermittent. Possibly due to the Reddit response?
+            # We can skip the erroneous record and continue, no need to stop as the post will be picked up next time.
+            print(f"Error extracting comments: {e}")
+            print(comment)
         
-        commentList.append(commentData)
-        
-        if (len(comment["data"]["replies"]) > 0):
-            extractAllComments(commentList, comment["data"]["replies"])
-   
-    return commentList
+    
 
 # Wrapper for recursive function extractAllComments
 def getCommentsforPost(postDataFromJSON):
