@@ -64,7 +64,7 @@ def getPostInformation(postDataFromJSON):
     postPermalink = postDataFromJSON["data"]["children"][0]["data"]["permalink"]       
     postDate = datetime.datetime.fromtimestamp(postDataFromJSON["data"]["children"][0]["data"]["created"])    
     
-    postInformation["creditComment"] = f'\"{postInformation["title"]}\"\r\n\r\nOriginally posted by u/{postAuthor} on {postDate} ([{postInformation["id"]}](https://www.reddit.com{postPermalink})).'
+    postInformation["creditComment"] = f'**\"{postInformation["title"]}\"**\r\n\r\nOriginally posted by u/{postAuthor} on {postDate} ([{postInformation["id"]}](https://www.reddit.com{postPermalink})).'
         
     return postInformation
         
