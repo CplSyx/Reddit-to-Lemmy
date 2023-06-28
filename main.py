@@ -124,7 +124,7 @@ for post in dedupList:
     for comment in post[1]:
         if not testMode:
             commentDate = datetime.datetime.fromtimestamp(comment["commentCreated"])  
-            commentContent = f'{comment["commentBody"]}\r\n\r\nOriginally commented by u/{comment["commentAuthor"]} on {commentDate} ([{comment["commentID"]}](https://www.reddit.com{comment["commentPermalink"]}))'        
+            commentContent = f'{comment["commentBody"]}\r\n\r\n`Originally commented by u/{comment["commentAuthor"]} on {commentDate}` ([{comment["commentID"]}](https://www.reddit.com{comment["commentPermalink"]}))'        
             lemmyCommentID = lp.setComment(userToken, lemmyServer, commentContent, postID, parentID = postedComments.get(comment["commentParentID"][3:]))
             postedComments[comment["commentID"]] = lemmyCommentID
         commentCount += 1       
