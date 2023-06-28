@@ -52,9 +52,38 @@ import catbox as cb
 import lemmypost as lp
 
 # Start by getting the subreddit post data. This may take a while depending on the number of posts requested.
-print("Connecting to Reddit")
+print("Querying Reddit")
 posts = rc.captureSubreddit(clientID, clientSecret, userAgent, subreddit, postCaptureCount, newContent)
-print(f"Obtained {len(posts)} posts from {subreddit}")
+if newContent: 
+    print(f"    Obtained {len(posts)} 'new' posts from {subreddit}")
+else:
+    print(f"    Obtained {len(posts)} 'top' posts from {subreddit}")
+    
+#Got an error when importing 200 posts. 
+#Processing JSON
+#Traceback (most recent call last):
+#  File "C:\Users\Sam\Desktop\main.py", line 66, in <module>
+#    postData.append(rc.getCommentsforPost(post[1]))
+#                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#  File "C:\Users\Sam\Desktop\redditcapture.py", line 107, in getCommentsforPost
+#    extractAllComments(allComments, postDataFromJSON)
+#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
+#    extractAllComments(commentList, comment["data"]["replies"])
+#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
+#    extractAllComments(commentList, comment["data"]["replies"])
+#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
+#    extractAllComments(commentList, comment["data"]["replies"])
+#  [Previous line repeated 7 more times]
+#  File "C:\Users\Sam\Desktop\redditcapture.py", line 90, in extractAllComments
+#    commentData["commentBody"] = comment["data"]["body"]
+#                                 ~~~~~~~~~~~~~~~^^^^^^^^
+#KeyError: 'body'
+#
+#Use the below to debug
+#with open('dump.json', 'w', encoding='utf-8') as f:
+#    print(posts, file=f) # Python 3.x
+#    
+#exit()
 
 # The variable "posts" now contains two list items [0] is the post information, [1] is all the comments
 # Let's process these:
@@ -70,13 +99,17 @@ for post in posts:
 
 # Next we need a list of all the posts we currently have in our Lemmy community so that we can dedup the list of processedPosts
 print(f"Getting Lemmy Community posts for {lemmyCommunity} on {lemmyServer}")
-lemmyPosts = lp.getPosts(lemmyServer, lemmyCommunity)
+userToken = lp.login(lemmyServer, username, password)
+lemmyPosts = lp.getPosts(userToken, lemmyServer, lemmyCommunity)
+print(f"    {len(lemmyPosts)} posts obtained")
 
 # Now we need the comments from these that contain the Reddit post ID as part of the "credit"
+print(f"Extracting 'credit' comment data")
 lemmyCreditComments = []
 for lemmyPost in lemmyPosts:
     creditComment = lp.getCreditComment(lemmyServer, lemmyPost["post"]["id"])  
     lemmyCreditComments.append(creditComment)
+print(f"    Complete for {len(lemmyCreditComments)} comments")
 
 # Now we have all the Reddit comments AND the Lemmy "credit" comments, we can compare and dedup.
 print(f"Deduplicating:")
@@ -106,7 +139,6 @@ for post in dedupList:
 
 # We now have a set of posts that's ready to hit Lemmy! 
 print(f"Posting {len(dedupList)} posts to Lemmy")
-userToken = lp.login(lemmyServer, username, password)
 postCount = 0
 commentCount = 0
 for post in dedupList:
@@ -124,7 +156,7 @@ for post in dedupList:
     for comment in post[1]:
         if not testMode:
             commentDate = datetime.datetime.fromtimestamp(comment["commentCreated"])  
-            commentContent = f'{comment["commentBody"]}\r\n\r\n`Originally commented by u/{comment["commentAuthor"]} on {commentDate}` ([{comment["commentID"]}](https://www.reddit.com{comment["commentPermalink"]}))'        
+            commentContent = f'{comment["commentBody"]}\r\n\r\n`Originally commented by u/{comment["commentAuthor"]} on {commentDate}` [{comment["commentID"]}](https://www.reddit.com{comment["commentPermalink"]})'        
             lemmyCommentID = lp.setComment(userToken, lemmyServer, commentContent, postID, parentID = postedComments.get(comment["commentParentID"][3:]))
             postedComments[comment["commentID"]] = lemmyCommentID
         commentCount += 1       
