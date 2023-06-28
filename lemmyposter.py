@@ -19,7 +19,7 @@ def login(server, username, pw):
         
     except Exception as e:
         print(f"Error logging in with {username}: {e}")
-        return False
+        exit()
     
 
 ## Get Community ID from Community Name (NOT display name)
@@ -108,11 +108,11 @@ def distinguishComment(authToken, server, commentID):
 ## Returns list of posts
 ## Reference: https://join-lemmy.org/api/classes/LemmyHttp.html#getPosts
 
-def getPosts(server, communityName):
+def getPosts(authToken, server, communityName):
     try:
         posts = []
         page = 1       
-        while ((request := requests.get(f"{server}/api/v3/post/list?community_name={communityName}&page={page}")) and len(request.json()["posts"]) > 0):
+        while ((request := requests.get(f"{server}/api/v3/post/list?auth={authToken}&community_name={communityName}&page={page}")) and len(request.json()["posts"]) > 0):
             for postDetails in request.json()["posts"]:            
                 posts.append(postDetails)                
             page += 1
