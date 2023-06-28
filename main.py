@@ -51,6 +51,9 @@ import redditcapture as rc
 import catbox as cb
 import lemmypost as lp
 
+if testMode:
+    print ("\r\n*** Running in test mode. No data will be uploaded anywhere.*** \r\n")
+    
 # Start by getting the subreddit post data. This may take a while depending on the number of posts requested.
 print("Querying Reddit")
 posts = rc.captureSubreddit(clientID, clientSecret, userAgent, subreddit, postCaptureCount, newContent)
@@ -59,32 +62,6 @@ if newContent:
 else:
     print(f"    Obtained {len(posts)} 'top' posts from {subreddit}")
     
-#Got an error when importing 200 posts. 
-#Processing JSON
-#Traceback (most recent call last):
-#  File "C:\Users\Sam\Desktop\main.py", line 66, in <module>
-#    postData.append(rc.getCommentsforPost(post[1]))
-#                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#  File "C:\Users\Sam\Desktop\redditcapture.py", line 107, in getCommentsforPost
-#    extractAllComments(allComments, postDataFromJSON)
-#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
-#    extractAllComments(commentList, comment["data"]["replies"])
-#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
-#    extractAllComments(commentList, comment["data"]["replies"])
-#  File "C:\Users\Sam\Desktop\redditcapture.py", line 98, in extractAllComments
-#    extractAllComments(commentList, comment["data"]["replies"])
-#  [Previous line repeated 7 more times]
-#  File "C:\Users\Sam\Desktop\redditcapture.py", line 90, in extractAllComments
-#    commentData["commentBody"] = comment["data"]["body"]
-#                                 ~~~~~~~~~~~~~~~^^^^^^^^
-#KeyError: 'body'
-#
-#Use the below to debug
-#with open('dump.json', 'w', encoding='utf-8') as f:
-#    print(posts, file=f) # Python 3.x
-#    
-#exit()
-
 # The variable "posts" now contains two list items [0] is the post information, [1] is all the comments
 # Let's process these:
 
@@ -107,7 +84,7 @@ print(f"    {len(lemmyPosts)} posts obtained")
 print(f"Extracting 'credit' comment data")
 lemmyCreditComments = []
 for lemmyPost in lemmyPosts:
-    creditComment = lp.getCreditComment(lemmyServer, lemmyPost["post"]["id"])  
+    creditComment = lp.getCreditComment(userToken, lemmyServer, lemmyPost["post"]["id"])  
     lemmyCreditComments.append(creditComment)
 print(f"    Complete for {len(lemmyCreditComments)} comments")
 
