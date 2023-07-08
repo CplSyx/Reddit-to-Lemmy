@@ -49,7 +49,7 @@ import datetime
 import requests
 import redditcapture as rc
 import catbox as cb
-import lemmypost as lp
+import lemmyposter as lp
 
 if testMode:
     print ("\r\n*** Running in test mode. No data will be uploaded anywhere.*** \r\n")
